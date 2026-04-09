@@ -1,7 +1,8 @@
 ﻿using HarmonyLib;
+using Il2Cpp;
+using Il2CppSystem.Collections.Generic;
 using MelonLoader;
 using UnityEngine;
-using Il2Cpp;
 
 namespace LastEpoch_Hud.Scripts.Mods.Character
 {
@@ -77,7 +78,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
                 selected_active_slot = null;
                 selected_discovered_slot = null;
             }
-        }        
+        }
         ItemDataUnpacked CreateBlessing(int blessing_id)
         {
             ItemDataUnpacked item = new ItemDataUnpacked
@@ -90,7 +91,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
                 sockets = (byte)0,
                 uniqueID = (ushort)0
             };
-            item.randomiseImplicitRolls();
+            item.implicitRolls = new byte[] { 255, 255, 255 };
             item.RefreshIDAndValues();
 
             return item;
@@ -127,10 +128,9 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
             Il2CppLE.Data.BlessingData result = new Il2CppLE.Data.BlessingData
             {
                 SubtypeId = subtype,
-                //ImplicitValue = UnityEngine.Random.Range(0f, 1f),
-                ImplicitRollByte0 = (byte)UnityEngine.Random.Range(0f, 255f),
-                ImplicitRollByte1 = (byte)UnityEngine.Random.Range(0f, 255f),
-                ImplicitRollByte2 = (byte)UnityEngine.Random.Range(0f, 255f)
+                ImplicitRollByte0 = 255,
+                ImplicitRollByte1 = 255,
+                ImplicitRollByte2 = 255
             };
 
             return result;
@@ -198,12 +198,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
                     timelines_id.Add(TimelineID.Gaspar);
                     timelines_id.Add(TimelineID.Heorot);
                     timelines_id.Add(TimelineID.Volcano);
-                    
-                    /*if (BlessingRewardPanelManager.instance.IsNullOrDestroyed())
-                    {
-                        BlessingRewardPanelManager.OnOptionsPopulated(TimelineID.UndeadAbom, 0, 3);
-                        //BlessingRewardPanelManager.onOptionsPopulated(TimelineID.UndeadAbom, 0, 3);
-                    }*/
+
                     if (!BlessingRewardPanelManager.instance.IsNullOrDestroyed())
                     {
                         GameObject ui = BlessingRewardPanelManager.instance.gameObject;
@@ -218,7 +213,8 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
                     }
                     else { Main.logger_instance?.Error("BlessingRewardPanelManager.instance is null"); }
                 }
-                //Add all blessing
+
+                //Add all blessings
                 if (!Refs_Manager.item_list.IsNullOrDestroyed())
                 {
                     int base_id = 34;
@@ -231,40 +227,30 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
                     }
                     if ((found) && (!Refs_Manager.player_data_tracker.IsNullOrDestroyed()))
                     {
+                        // Clear existing blssings to replace them
+                        Refs_Manager.player_data_tracker.charData.BlessingsDiscovered.Clear();
+                        Refs_Manager.player_data_tracker.charData.OpenBlessings.Clear();
+
+                        List<int> blessingSubtypes = new();
+
                         foreach (ItemList.EquipmentItem item in Refs_Manager.item_list.EquippableItems[index].subItems)
                         {
-                            //Add BlessingsDiscovered
-                            /*bool blessing_already_in_player = false;
-                            foreach (int blessing_id in Refs_Manager.player_data_tracker.charData.BlessingsDiscovered)
-                            {
-                                if (blessing_id == item.subTypeID)
-                                {
-                                    blessing_already_in_player = true;
-                                    break;
-                                }
-                            }
-                            if (!blessing_already_in_player) { Refs_Manager.player_data_tracker.charData.BlessingsDiscovered.Add(item.subTypeID); }
-                            */
+                            // Collect all blessing subtypes
+                            blessingSubtypes.Add(item.subTypeID);
 
-                            //Add OpenBlessings
-                            bool blessing_data_already_in_player = false;
-                            foreach (Il2CppLE.Data.BlessingData blessing_data in Refs_Manager.player_data_tracker.charData.OpenBlessings)
-                            {
-                                if (blessing_data.SubtypeId == item.subTypeID)
-                                {
-                                    blessing_data_already_in_player = true;
-                                    break;
-                                }
-                            }
-                            if (!blessing_data_already_in_player) { Refs_Manager.player_data_tracker.charData.OpenBlessings.Add(CreateBlessingDataForSave(System.Convert.ToUInt16(item.subTypeID))); }
+                            // Add blessings
+                            Refs_Manager.player_data_tracker.charData.BlessingsDiscovered.Add(item.subTypeID);
+                            Refs_Manager.player_data_tracker.charData.OpenBlessings.Add(CreateBlessingDataForSave(System.Convert.ToUInt16(item.subTypeID)));
                         }
+
+                        // Save blessings
+                        Refs_Manager.player_data_tracker.charData.ReplaceBlessingsDiscovered(blessingSubtypes);
+                        Refs_Manager.player_data_tracker.charData.SaveUnlockedBlessings(Refs_Manager.player_data_tracker.charData.GetOpenBlessingsAsItems());
                         Refs_Manager.player_data_tracker.charData.SaveData();
                     }
                     else { Main.logger_instance?.Error("Blessings not found in itemlist"); }
                 }
                 else { Main.logger_instance?.Error("ItemList is null"); }
-
-                
 
                 adding_blessings = false;
             }
@@ -283,7 +269,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
                 }
             }
         }
-        
+
         [HarmonyPatch(typeof(InventoryBlessingSlotUI), "UnityEngine_EventSystems_IPointerEnterHandler_OnPointerEnter")]
         public class InventoryBlessingSlotUI_UnityEngine_EventSystems_IPointerEnterHandler_OnPointerEnter
         {
@@ -302,7 +288,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
                     else if ((slot_name.Contains("Blessing")) && (!slot_name.Contains("Inventory")))
                     {
                         temp_selected_active_slot = __instance;
-                    }                    
+                    }
                 }
             }
         }
