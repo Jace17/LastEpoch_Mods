@@ -410,6 +410,11 @@ namespace LastEpoch_Hud.Scripts.Mods.Maxroll
                     string jsonResponse = await response.Content.ReadAsStringAsync();
                     string[] p = url.Split('/');
                     string profile = p[p.Length - 1];
+                    // Remove # at the start of the profile if it exists (cases when the maxroll profile has unsaved changes)
+                    if (profile.StartsWith("#"))
+                    {
+                        profile = profile.Substring(1);
+                    }
                     if (profile.Contains("#"))
                     {
                         selected_profile = System.Convert.ToInt32(profile.Split('#')[1]) - 1;
