@@ -199,6 +199,21 @@ namespace LastEpoch_Hud.Scripts.Mods.Character
                     timelines_id.Add(TimelineID.Heorot);
                     timelines_id.Add(TimelineID.Volcano);
 
+
+                    if (BlessingRewardPanelManager.instance.IsNullOrDestroyed())
+                    {
+                        foreach (BlessingRewardPanelManager brp in Resources.FindObjectsOfTypeAll<BlessingRewardPanelManager>())
+                        {
+                            if (!brp.IsNullOrDestroyed())
+                            {
+                                GameObject blessing_go = Object.Instantiate(brp.gameObject, Vector3.zero, Quaternion.identity);
+                                break;
+                            }
+                        }
+                        
+                        //BlessingRewardPanelManager.instance.OnOptionsPopulated(TimelineID.UndeadAbom, 0, 3);
+                        //BlessingRewardPanelManager.onOptionsPopulated(TimelineID.UndeadAbom, 0, 3);
+                    }
                     if (!BlessingRewardPanelManager.instance.IsNullOrDestroyed())
                     {
                         GameObject ui = BlessingRewardPanelManager.instance.gameObject;

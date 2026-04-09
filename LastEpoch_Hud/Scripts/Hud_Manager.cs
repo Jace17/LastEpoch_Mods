@@ -2,6 +2,8 @@
 using Il2Cpp;
 using Il2CppLE.Data;
 using Il2CppLE.Tools;
+using Il2CppLE.UI.Bazaar;
+using Il2CppNetworking.Multiplayer.Interactables.Portals;
 using Il2CppOperationResult;
 using Il2CppRewired.Components; //Gamepad
 using Il2CppSystem.Collections.Generic;
@@ -14,6 +16,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices; //Gamepad
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace LastEpoch_Hud.Scripts
@@ -1762,28 +1765,28 @@ namespace LastEpoch_Hud.Scripts
                                 Data.soul_slider = Functions.Get_SliderInPanel(character_data_content, "Soul Embers", "Slider_Character_Data_SoulEmbers");
 
                                 Data.monolith_stability_basic_go = Functions.GetChild(character_data_content, "Monolith_Stability_Basic");
-                                Data.monolith_stability_basic_go.active = false;
+                                Data.monolith_stability_basic_go.active = true;
                                 Data.monolith_stability_basic_text = Functions.Get_TextInButton(character_data_content, "Monolith_Stability_Basic", "Value");
                                 Data.monolith_stability_basic_slider = Functions.Get_SliderInPanel(character_data_content, "Monolith_Stability_Basic", "Slider_Basic_Stability");
 
                                 Data.monolith_stability_empower_go = Functions.GetChild(character_data_content, "Monolith_Stability_Empower");
-                                Data.monolith_stability_empower_go.active = false;
+                                Data.monolith_stability_empower_go.active = true;
                                 Data.monolith_stability_empower_text = Functions.Get_TextInButton(character_data_content, "Monolith_Stability_Empower", "Value");
                                 Data.monolith_stability_empower_slider = Functions.Get_SliderInPanel(character_data_content, "Monolith_Stability_Empower", "Slider_Empower_Stability");
 
                                 Data.monolith_corruption_go = Functions.GetChild(character_data_content, "Monolith_Corruption");
-                                Data.monolith_corruption_go.active = false;
+                                Data.monolith_corruption_go.active = true;
                                 Data.monolith_corruption_text = Functions.Get_TextInButton(character_data_content, "Monolith_Corruption", "Value");
                                 Data.monolith_corruption_slider = Functions.Get_SliderInPanel(character_data_content, "Monolith_Corruption", "Slider_Empower_Corruption");
 
                                 Data.monolith_gaze_go = Functions.GetChild(character_data_content, "Monolith_Gaze");
-                                Data.monolith_gaze_go.active = false;
+                                Data.monolith_gaze_go.active = true;
                                 Data.monolith_gaze_text = Functions.Get_TextInButton(character_data_content, "Monolith_Gaze", "Value");
                                 Data.monolith_gaze_slider = Functions.Get_SliderInPanel(character_data_content, "Monolith_Gaze", "Slider");
 
                                 Data.monolith_dropdown = Functions.Get_DopboxInPanel(character_data_content, "Monoliths", "Dropdown", new System.Action<int>((_) => { Update_Monoliths_Data(); }));
                                 Data.monolith_dropdown.options = new List<Dropdown.OptionData>();
-                                Data.monolith_dropdown.options.Add(new Dropdown.OptionData { text = "Select" });
+                                Data.monolith_dropdown.options.Add(new Dropdown.OptionData { text = "All Monoliths" });
                                 Data.monolith_dropdown.options.Add(new Dropdown.OptionData { text = "Fall_Of_The_Outcast" });
                                 Data.monolith_dropdown.options.Add(new Dropdown.OptionData { text = "The_Stolen_Lance" });
                                 Data.monolith_dropdown.options.Add(new Dropdown.OptionData { text = "The_Black_Sun" });
@@ -2379,20 +2382,20 @@ namespace LastEpoch_Hud.Scripts
                         int index = Data.monolith_dropdown.value;
                         if (index < 1)
                         {
-                            int value = -1;
-                            Data.monolith_stability_basic_go.active = false;
+                            int value = 0;
+                            Data.monolith_stability_basic_go.active = true;
                             Data.monolith_stability_basic_slider.value = value;
                             Data.monolith_stability_basic_text.text = value.ToString();
 
-                            Data.monolith_stability_empower_go.active = false;
+                            Data.monolith_stability_empower_go.active = true;
                             Data.monolith_stability_empower_slider.value = value;
                             Data.monolith_stability_empower_text.text = value.ToString();
 
-                            Data.monolith_corruption_go.active = false;
+                            Data.monolith_corruption_go.active = true;
                             Data.monolith_corruption_slider.value = value;
                             Data.monolith_corruption_text.text = value.ToString();
 
-                            Data.monolith_gaze_go.active = false;
+                            Data.monolith_gaze_go.active = true;
                             Data.monolith_gaze_slider.value = value;
                             Data.monolith_gaze_text.text = value.ToString();
                         }
@@ -2861,7 +2864,12 @@ namespace LastEpoch_Hud.Scripts
                             {
                                 foreach (SavedMonolithRun run in Refs_Manager.player_data.MonolithRuns)
                                 {
-                                    if ((run.TimelineID == index) && (run.DifficultyIndex == 0))
+                                    if (index == 0 && run.DifficultyIndex == 0)
+                                    {
+                                        // Update all timelines instead
+                                        if (run.Stability != result) { run.Stability = result; }
+                                    }
+                                    else if ((run.TimelineID == index) && (run.DifficultyIndex == 0))
                                     {
                                         if (run.Stability != result) { run.Stability = result; }
                                         break;
@@ -2886,7 +2894,12 @@ namespace LastEpoch_Hud.Scripts
                             {
                                 foreach (SavedMonolithRun run in Refs_Manager.player_data.MonolithRuns)
                                 {
-                                    if ((run.TimelineID == index) && (run.DifficultyIndex == 1))
+                                    if (index == 0 && run.DifficultyIndex == 1)
+                                    {
+                                        // Update all timelines instead
+                                        if (run.Stability != result) { run.Stability = result; }
+                                    }
+                                    else if ((run.TimelineID == index) && (run.DifficultyIndex == 1))
                                     {
                                         if (run.Stability != result) { run.Stability = result; }
                                         break;
@@ -2911,7 +2924,15 @@ namespace LastEpoch_Hud.Scripts
                             {
                                 foreach (SavedMonolithRun run in Refs_Manager.player_data.MonolithRuns)
                                 {
-                                    if ((run.TimelineID == index) && (run.DifficultyIndex == 1))
+                                    if (index == 0 && run.DifficultyIndex == 1)
+                                    {
+                                        // Update all timelines instead
+                                        if (!run.SavedEchoWeb.IsNullOrDestroyed())
+                                        {
+                                            if (run.SavedEchoWeb.Corruption != result) { run.SavedEchoWeb.Corruption = result; }
+                                        }
+                                    }
+                                    else if ((run.TimelineID == index) && (run.DifficultyIndex == 1))
                                     {
                                         if (!run.SavedEchoWeb.IsNullOrDestroyed())
                                         {
@@ -2939,7 +2960,15 @@ namespace LastEpoch_Hud.Scripts
                             {
                                 foreach (SavedMonolithRun run in Refs_Manager.player_data.MonolithRuns)
                                 {
-                                    if ((run.TimelineID == index) && (run.DifficultyIndex == 1))
+                                    if (index == 0 && run.DifficultyIndex == 1)
+                                    {
+                                        // Update all timelines instead
+                                        if (!run.SavedEchoWeb.IsNullOrDestroyed())
+                                        {
+                                            if (run.SavedEchoWeb.GazeOfOrobyss != result) { run.SavedEchoWeb.GazeOfOrobyss = result; }
+                                        }
+                                    } 
+                                    else if ((run.TimelineID == index) && (run.DifficultyIndex == 1))
                                     {
                                         if (!run.SavedEchoWeb.IsNullOrDestroyed())
                                         {
@@ -4255,6 +4284,10 @@ namespace LastEpoch_Hud.Scripts
                             if (!scene_dungeons_content.IsNullOrDestroyed())
                             {
                                 Dungeons.enter_without_key_toggle = Functions.Get_ToggleInPanel(scene_dungeons_content, "EnterWithoutKey", "Toggle_Scenes_Dungeons_EnterWithoutKey");
+
+                                Teleport.scene_dropdown = Functions.GetChild(scene_dungeons_content, "Teleport_Dropdown").GetComponent<Dropdown>();
+                                Teleport.scene_button = Functions.GetChild(scene_dungeons_content, "Teleport_Btn").GetComponent<Button>();
+                                Teleport.Init();
                             }
                             GameObject scene_minimap_content = Functions.GetViewportContent(content_obj, "Center", "Scenes_Minimap_Content");
                             if (!scene_minimap_content.IsNullOrDestroyed())
@@ -4294,6 +4327,7 @@ namespace LastEpoch_Hud.Scripts
                 {
                     Events.Set_Button_Event(Camera.reset_button, Camera.Reset_OnClick_Action);
                     Events.Set_Button_Event(Camera.set_button, Camera.Set_OnClick_Action);
+                    Events.Set_Button_Event(Teleport.scene_button, Teleport.Scene_OnClick_Action);
                 }
                 public static void Set_Active(bool show)
                 {
@@ -4459,6 +4493,55 @@ namespace LastEpoch_Hud.Scripts
                 public class Dungeons
                 {
                     public static Toggle enter_without_key_toggle = null;
+                }
+                public class Teleport
+                {
+                    public static Dropdown scene_dropdown = null;
+                    public static Button scene_button = null;
+                    public static readonly System.Action Scene_OnClick_Action = new System.Action(Scene_Teleport);
+
+                    public static void Init()
+                    {
+                        scene_dropdown.options.Clear();
+                        scene_dropdown.options.Add(new Dropdown.OptionData("Select"));
+
+                        Mods.Teleport.Teleport_ToScene.scene_names.Clear();
+                        Mods.Teleport.Teleport_ToScene.scene_names.Add("");
+                        foreach (SceneDetails scene_detail in SceneList.instance.sceneDetailsCollection)
+                        {
+                            if ((scene_detail.Name != "PersistentUI") &&
+                                (scene_detail.Name != "CharacterSelectScene") &&
+                                (scene_detail.Name != "Login") &&
+                                (scene_detail.Name != "PersistentUI") &&
+                                (scene_detail.Name != "MonolithHub") &&
+                                (scene_detail.Name != "A_Reward") &&
+                                (scene_detail.Name != "Mastery") &&
+                                (scene_detail.Name != "Neutral") &&
+                                (scene_detail.Name != "PCG_Dev") &&
+                                (!scene_detail.Name.Contains("PCG")) &&
+                                (!scene_detail.Name.Contains("Arena")) &&
+                                (scene_detail.LocalizedName != scene_detail.Name) && //New zones
+                                (!Mods.Teleport.Teleport_ToScene.scene_names.Contains(scene_detail.Name)))
+                            {
+                                string option_name = "";
+                                if (scene_detail.Name != scene_detail.LocalizedName)
+                                {
+                                    option_name = scene_detail.Name + " : " + scene_detail.LocalizedName;
+                                }
+                                else { option_name = scene_detail.Name; }
+                                if (option_name != "")
+                                {
+                                    //Main.logger_instance.Warning("add scene = " + scene_detail.Name);
+                                    Mods.Teleport.Teleport_ToScene.scene_names.Add(scene_detail.Name);
+                                    scene_dropdown.options.Add(new Dropdown.OptionData(option_name));
+                                }
+                            }
+                        }
+                    }
+                    public static void Scene_Teleport()
+                    {
+                        Mods.Teleport.Teleport_ToScene.StartTp(scene_dropdown.value);
+                    }
                 }
                 public class Monoliths
                 {
@@ -7523,6 +7606,52 @@ namespace LastEpoch_Hud.Scripts
                     }
                 }
 
+                //Herald of Purity
+                public static Dropdown Herald_of_Purity_VFX_dropdown = null;
+                private static void Set_Herald_of_Purity_VFX()
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Herald_of_Purity_VFX_dropdown.IsNullOrDestroyed()))
+                    {
+                        Save_Manager.instance.data.NewItems.HeraldOfPurity.VFX = Herald_of_Purity_VFX_dropdown.options[Herald_of_Purity_VFX_dropdown.value].text;
+                        Object.Destroy(Items_Heralds.Uniques.Physical.ability);
+                        Object.Destroy(Items_Heralds.Uniques.Physical.prefab_obj);
+                    }
+                }
+                public static Toggle Herald_of_Purity_Radius_toggle = null;
+                public static readonly System.Action<bool> Herald_of_Purity_Radius_Toggle_Action = new System.Action<bool>(Set_Herald_of_Purity_Radius_Enable);
+                private static void Set_Herald_of_Purity_Radius_Enable(bool enable)
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Herald_of_Purity_Radius_toggle.IsNullOrDestroyed()))
+                    {
+                        Save_Manager.instance.data.NewItems.HeraldOfPurity.Enable_Radius = Herald_of_Purity_Radius_toggle.isOn;
+                        Object.Destroy(Items_Heralds.Uniques.Physical.prefab_obj);
+                    }
+                }
+                public static Text Herald_of_Purity_Radius_text = null;
+                public static Slider Herald_of_Purity_Radius_slider = null;
+                public static readonly System.Action<float> Herald_of_Purity_Radius_slider_Action = new System.Action<float>(Set_Herald_of_Purity_Radius);
+                public static void Set_Herald_of_Purity_Radius(float f)
+                {
+                    if ((!Herald_of_Purity_Radius_slider.IsNullOrDestroyed()) && (!Herald_of_Purity_Radius_text.IsNullOrDestroyed()))
+                    {
+                        float result = Herald_of_Purity_Radius_slider.value;
+                        Save_Manager.instance.data.NewItems.HeraldOfPurity.Radius = result;
+                        Herald_of_Purity_Radius_text.text = ((int)(result * 100)).ToString() + " %";
+                        Object.Destroy(Items_Heralds.Uniques.Physical.prefab_obj);
+                    }
+                }
+                public static Dropdown Herald_of_Purity_LegendaryType_dropdown = null;
+                private static void Set_Herald_of_Purity_LegendaryType()
+                {
+                    if ((!Save_Manager.instance.IsNullOrDestroyed()) && (!Herald_of_Purity_LegendaryType_dropdown.IsNullOrDestroyed()))
+                    {
+                        bool weaverwill = false;
+                        if (Herald_of_Purity_LegendaryType_dropdown.value == 1) { weaverwill = true; }
+                        Save_Manager.instance.data.NewItems.HeraldOfPurity.WeaverWill = weaverwill;
+                        if (IsPauseOpen()) { Items_Heralds.Uniques.Physical.Update_LegendaryType(weaverwill); }
+                    }
+                }
+
                 public static void Get_Refs()
                 {
                     content_obj = Functions.GetChild(Content.content_obj, "NewItems_Content");
@@ -7602,6 +7731,15 @@ namespace LastEpoch_Hud.Scripts
                                 Herald_of_Agony_Radius_slider = Functions.Get_SliderInPanel(left, "Herald_of_Agony", "Slider");
                                 Herald_of_Agony_LegendaryType_dropdown = Functions.Get_DopboxInPanel(herald_of_agony, "Dropdown_LegendaryType", "Dropdown", new System.Action<int>((_) => { Set_Herald_of_Agony_LegendaryType(); }));
                             }
+                            GameObject herald_of_purity = Functions.GetChild(left, "Herald_of_Purity");
+                            if (!herald_of_agony.IsNullOrDestroyed())
+                            {
+                                Herald_of_Purity_VFX_dropdown = Functions.Get_DopboxInPanel(herald_of_purity, "VFX", "Dropdown", new System.Action<int>((_) => { Set_Herald_of_Purity_VFX(); }));
+                                Herald_of_Purity_Radius_toggle = Functions.Get_ToggleInPanel(left, "Herald_of_Purity", "Toggle");
+                                Herald_of_Purity_Radius_text = Functions.Get_TextInToggle(left, "Herald_of_Purity", "Toggle", "Value");
+                                Herald_of_Purity_Radius_slider = Functions.Get_SliderInPanel(left, "Herald_of_Purity", "Slider");
+                                Herald_of_Purity_LegendaryType_dropdown = Functions.Get_DopboxInPanel(herald_of_purity, "Dropdown_LegendaryType", "Dropdown", new System.Action<int>((_) => { Set_Herald_of_Purity_LegendaryType(); }));
+                            }
                         }
                         GameObject center = Functions.GetViewportContent(content_obj, "Center", "Content");
                         if (!center.IsNullOrDestroyed())
@@ -7634,6 +7772,9 @@ namespace LastEpoch_Hud.Scripts
                     GetLegendaryType(Herald_of_Thunder_LegendaryType_dropdown);
 
                     GetAbility(Herald_of_Agony_VFX_dropdown, "Poison, Spell", false, true);
+                    GetLegendaryType(Herald_of_Agony_LegendaryType_dropdown);
+
+                    GetAbility(Herald_of_Purity_VFX_dropdown, "Physical, Spell", false, true);
                     GetLegendaryType(Herald_of_Agony_LegendaryType_dropdown);
                 }
                 public static void GetLegendaryType(Dropdown dropdown)
@@ -7755,6 +7896,14 @@ namespace LastEpoch_Hud.Scripts
                     if (!Herald_of_Agony_Radius_slider.IsNullOrDestroyed())
                     {
                         Events.Set_Slider_Event(Herald_of_Agony_Radius_slider, Herald_of_Agony_Radius_slider_Action);
+                    }
+                    if (!Herald_of_Purity_Radius_toggle.IsNullOrDestroyed())
+                    {
+                        Events.Set_Toggle_Event(Herald_of_Purity_Radius_toggle, Herald_of_Purity_Radius_Toggle_Action);
+                    }
+                    if (!Herald_of_Purity_Radius_slider.IsNullOrDestroyed())
+                    {
+                        Events.Set_Slider_Event(Herald_of_Purity_Radius_slider, Herald_of_Purity_Radius_slider_Action);
                     }
                 }
                 public static void Set_Active(bool show)
@@ -7992,6 +8141,33 @@ namespace LastEpoch_Hud.Scripts
                             {
                                 if (Save_Manager.instance.data.NewItems.HeraldOfAgony.WeaverWill) { Herald_of_Agony_LegendaryType_dropdown.value = 1; }
                                 else { Herald_of_Agony_LegendaryType_dropdown.value = 0; }
+                            }
+
+                            if (!Herald_of_Purity_VFX_dropdown.IsNullOrDestroyed())
+                            {
+                                int index = 0;
+                                if (Save_Manager.instance.data.NewItems.HeraldOfPurity.VFX != "")
+                                {
+                                    foreach (Dropdown.OptionData options in Herald_of_Purity_VFX_dropdown.options)
+                                    {
+                                        if (options.text == Save_Manager.instance.data.NewItems.HeraldOfPurity.VFX) { break; }
+                                        index++;
+                                    }
+                                }
+                                Herald_of_Purity_VFX_dropdown.value = index;
+                            }
+                            if (!Herald_of_Purity_Radius_toggle.IsNullOrDestroyed())
+                            {
+                                Herald_of_Purity_Radius_toggle.isOn = Save_Manager.instance.data.NewItems.HeraldOfPurity.Enable_Radius;
+                            }
+                            if (!Herald_of_Purity_Radius_slider.IsNullOrDestroyed())
+                            {
+                                Herald_of_Purity_Radius_slider.value = Save_Manager.instance.data.NewItems.HeraldOfPurity.Radius;
+                            }
+                            if (!Herald_of_Purity_LegendaryType_dropdown.IsNullOrDestroyed())
+                            {
+                                if (Save_Manager.instance.data.NewItems.HeraldOfPurity.WeaverWill) { Herald_of_Purity_LegendaryType_dropdown.value = 1; }
+                                else { Herald_of_Purity_LegendaryType_dropdown.value = 0; }
                             }
 
                             result = true;
