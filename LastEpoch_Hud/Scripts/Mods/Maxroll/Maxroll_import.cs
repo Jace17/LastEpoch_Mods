@@ -57,7 +57,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Maxroll
                         if (!implicitRolls[i].IsNullOrDestroyed())
                         {
                             implicitRolls[i] = (byte)(implicits[i] * 255);
-                        }                      
+                        }
                     }
                 }
 
@@ -104,10 +104,10 @@ namespace LastEpoch_Hud.Scripts.Mods.Maxroll
                         {
                             for (int i = 0; i < unique_rolls.Count && i < uniqueRolls.Length; i++)
                             {
-                                if(!unique_rolls[i].IsNullOrDestroyed())
+                                if (!unique_rolls[i].IsNullOrDestroyed())
                                 {
                                     uniqueRolls[i] = (byte)(unique_rolls[i] * 255);
-                                }                                    
+                                }
                             }
                         }
                     }
@@ -411,35 +411,39 @@ namespace LastEpoch_Hud.Scripts.Mods.Maxroll
                     string[] p = url.Split('/');
                     string profile = p[p.Length - 1];
                     // Remove # at the start of the profile if it exists (cases when the maxroll profile has unsaved changes)
-                    if (profile.StartsWith("#"))
+                    if (!profile.StartsWith("#"))
                     {
-                        profile = profile.Remove(0, 1);
-                    }
-                    if (profile.Contains("#"))
-                    {
-                        selected_profile = System.Convert.ToInt32(profile.Split('#')[1]) - 1;
-                        string p2 = profile.Split('#')[0];
-                        profile = p2;
-                    }
-                    else { Data.selected_profile = 0; }
-                    string json = "";
-                    string[] r = jsonResponse.Split('>');
-                    foreach (string s in r)
-                    {
-                        if (s.Contains(profile))
+                        if (profile.Contains("#"))
                         {
-                            string s2 = s.Split('<')[0];
-                            string remove = "window.__remixContext = ";
-                            json = s2.Substring(remove.Length, s2.Length - remove.Length - 1);
-                            break;
+                            selected_profile = System.Convert.ToInt32(profile.Split('#')[1]) - 1;
+                            string p2 = profile.Split('#')[0];
+                            profile = p2;
+                        }
+                        else { Data.selected_profile = 0; }
+                        string json = "";
+                        string[] r = jsonResponse.Split('>');
+                        foreach (string s in r)
+                        {
+                            if (s.Contains(profile))
+                            {
+                                string s2 = s.Split('<')[0];
+                                string remove = "window.__remixContext = ";
+                                json = s2.Substring(remove.Length, s2.Length - remove.Length - 1);
+                                break;
+                            }
+                        }
+                        if (json != "")
+                        {
+                            root = JsonConvert.DeserializeObject<Json.Root>(json);
+                            data = JsonConvert.DeserializeObject<Json.Data>(root.State.LoaderData.LastEpochPlannerById.Profile.Data);
+                            loaded = true;
                         }
                     }
-                    if (json != "")
+                    else
                     {
-                        root = JsonConvert.DeserializeObject<Json.Root>(json);
-                        data = JsonConvert.DeserializeObject<Json.Data>(root.State.LoaderData.LastEpochPlannerById.Profile.Data);
-                        loaded = true;
+                        Main.logger_instance.Error("Unsaved changes in Maxroll profile detected. Save profile and enter new URL.");
                     }
+
                 }
                 else { Main.logger_instance.Error("Not a Maxroll URL"); }
             }
