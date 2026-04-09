@@ -413,7 +413,7 @@ namespace LastEpoch_Hud.Scripts.Mods.Maxroll
                     // Remove # at the start of the profile if it exists (cases when the maxroll profile has unsaved changes)
                     if (profile.StartsWith("#"))
                     {
-                        profile = profile.Substring(1);
+                        profile = profile.Remove(0, 1);
                     }
                     if (profile.Contains("#"))
                     {
